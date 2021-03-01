@@ -40,6 +40,7 @@ package object prelude
     with IdentitySyntax
     with IdentityBothSyntax
     with IdentityEitherSyntax
+    with InvariantSyntax
     with InverseSyntax
     with NewtypeExports
     with NewtypeFExports

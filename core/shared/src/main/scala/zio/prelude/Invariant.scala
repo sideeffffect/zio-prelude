@@ -16,9 +16,13 @@
 
 package zio.prelude
 
+import zio.prelude.coherent.{CovariantDeriveEqual, InvariantDeriveEqual}
 import zio.prelude.newtypes.{Failure, FailureIn, FailureOut}
 import zio.stm.ZSTM
 import zio.stream.{ZSink, ZStream}
+import zio.test.laws.ZLawsF.Covariant
+import zio.test.{Gen, TestConfig, TestResult, check}
+import zio.test.laws.{GenF, LawfulF, LawsF, ZLawsF}
 import zio.{
   Cause,
   Chunk,
@@ -27,6 +31,7 @@ import zio.{
   Fiber,
   NonEmptyChunk,
   Schedule,
+  URIO,
   ZIO,
   ZLayer,
   ZManaged,
@@ -40,24 +45,45 @@ import scala.util.Try
 
 trait Invariant[F[_]] { self =>
 
-  def invmap[A, B](f: A <=> B): F[A] <=> F[B]
+  def invmap[A, B](f: A <=> B): F[A] => F[B]
 
-  def identityLaw1[A](fa: F[A])(implicit equal: Equal[F[A]]): Boolean =
-    invmap(Equivalence.identity[A]).to(fa) === fa
-
-  def compositionLaw[A, B, C](fa: F[A], f: A <=> B, g: B <=> C)(implicit equal: Equal[F[C]]): Boolean =
-    (invmap(f) >>> invmap(g)).to(fa) === invmap(f andThen g).to(fa)
+//  def identityLaw1[A](fa: F[A])(implicit equal: Equal[F[A]]): Boolean =
+//    invmap(Equivalence.identity[A]).to(fa) === fa
+//
+//  def compositionLaw[A, B, C](fa: F[A], f: A <=> B, g: B <=> C)(implicit equal: Equal[F[C]]): Boolean =
+//    (invmap(f) >>> invmap(g)).to(fa) === invmap(f andThen g).to(fa)
 
   /**
    * Compose two invariant functors.
    */
   final def compose[G[_]](implicit g: Invariant[G]): Invariant[({ type lambda[A] = F[G[A]] })#lambda] =
     new Invariant[({ type lambda[A] = F[G[A]] })#lambda] {
-      def invmap[A, B](f: A <=> B): F[G[A]] <=> F[G[B]] = self.invmap(g.invmap(f))
+      def invmap[A, B](f: A <=> B): F[G[A]] => F[G[B]] = self.invmap(g.invmap(f))
     }
 }
 
-object Invariant extends LowPriorityInvariantImplicits with InvariantVersionSpecific {
+object Invariant
+    extends LawfulF.Invariant[InvariantDeriveEqual, Equal]
+    with LowPriorityInvariantImplicits
+    with InvariantVersionSpecific {
+
+  abstract class InvComposeLaw[-CapsF[_[_]], -Caps[_]](label: String) extends ZLawsF.Invariant[CapsF, Caps, Any] {
+    self =>
+    def apply[F[_]: CapsF, A: Caps, B: Caps, C: Caps](fa: F[A], f: A <=> B, g: B <=> C): TestResult
+    final def run[R <: TestConfig, F[+_]: CapsF, A: Caps](genF: GenF[R, F], gen: Gen[R, A]): URIO[R, TestResult] =
+      check(genF(gen), Gen.function(gen), Gen.function(gen))(apply(_, _, _).map(_.label(label)))
+  }
+
+  val invariantCompositionLaw = new InvComposeLaw[InvariantDeriveEqual, Equal]("invariantCompositionLaw") {
+    def apply[F[_]: InvariantDeriveEqual, A: Equal, B: Equal, C: Equal](fa: F[A], f: A <=> B, g: B <=> C) =
+      fa.invmap(f).invmap(g) <-> fa.invmap(f >>> g)
+  }
+
+  /**
+   * The set of all laws that instances of `Covariant` must satisfy.
+   */
+  val laws: LawsF.Invariant[InvariantDeriveEqual, Equal] =
+    invariantCompositionLaw
 
   def apply[F[_]](implicit invariant: Invariant[F]): Invariant[F] =
     invariant
@@ -1789,4 +1815,17 @@ trait LowPriorityInvariantImplicits {
    */
   implicit def ZSTMZivariantContravariant[E, A]: Contravariant[({ type lambda[-x] = ZSTM[x, E, A] })#lambda] =
     Zivariant.ZSTMZivariant.deriveContravariant
+}
+
+trait InvariantSyntax {
+
+  /**
+   * Provides infix syntax for mapping over invariant values.
+   */
+  implicit class InvariantOps[F[_], A](private val self: F[A]) {
+
+    def invmap[B](f: A <=> B)(implicit F: Invariant[F]): F[B] =
+      F.invmap(f)(self)
+
+  }
 }

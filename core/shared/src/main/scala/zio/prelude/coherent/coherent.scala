@@ -130,7 +130,7 @@ object CovariantDeriveEqual {
     }
 }
 
-trait ContravariantDeriveEqual[F[-_]] extends Contravariant[F] with DeriveEqual[F]
+trait ContravariantDeriveEqual[F[-_]] extends Contravariant[F] with InvariantDeriveEqual[F]
 
 object ContravariantDeriveEqual {
   implicit def derive[F[-_]](implicit
@@ -352,4 +352,16 @@ object HashOrd {
   def default[A](implicit ord: scala.math.Ordering[A]): Hash[A] with Ord[A] =
     make(_.hashCode(), (l, r) => Ordering.fromCompare(ord.compare(l, r)), _ == _)
 
+}
+
+trait InvariantDeriveEqual[F[+_]] extends Invariant[F] with DeriveEqual[F]
+
+object InvariantDeriveEqual {
+  implicit def derive[F[+_]](implicit invariant0: Invariant[F], deriveEqual0: DeriveEqual[F]): InvariantDeriveEqual[F] =
+    new InvariantDeriveEqual[F] {
+      def derive[A: Equal]: Equal[F[A]]          =
+        deriveEqual0.derive
+      def invmap[A, B](f: A <=> B): F[A] => F[B] =
+        invariant0.invmap(f)
+    }
 }
