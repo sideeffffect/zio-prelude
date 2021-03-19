@@ -34,7 +34,7 @@ final class ZSet[+A, +B] private (private val map: HashMap[A @uncheckedVariance,
   /**
    * A symbolic alias for `intersect`.
    */
-  def &[A1 >: A, B1 >: B](
+  def &[A1 >: A, B1 >: B: Equal](
     that: ZSet[A1, B1]
   )(implicit ev1: Commutative[Min[B1]], ev2: Identity[Sum[B1]]): ZSet[A1, B1] =
     self intersect that
@@ -42,7 +42,7 @@ final class ZSet[+A, +B] private (private val map: HashMap[A @uncheckedVariance,
   /**
    * A symbolic alias for `diff`.
    */
-  def &~[A1 >: A, B1 >: B](that: ZSet[A1, B1])(implicit ev: Inverse[Sum[B1]]): ZSet[A1, B1] =
+  def &~[A1 >: A, B1 >: B: Equal](that: ZSet[A1, B1])(implicit ev: Inverse[Sum[B1]]): ZSet[A1, B1] =
     self diff that
 
   /**
@@ -91,10 +91,15 @@ final class ZSet[+A, +B] private (private val map: HashMap[A @uncheckedVariance,
    * number of times each element appears is the difference between the number
    * of times it appears in this set and the specified set.
    */
-  def diff[A1 >: A, B1 >: B](that: ZSet[A1, B1])(implicit ev: Inverse[Sum[B1]]): ZSet[A1, B1] =
+  def diff[A1 >: A, B1 >: B](that: ZSet[A1, B1])(implicit ev: Inverse[Sum[B1]], eq: Equal[B1]): ZSet[A1, B1] =
     new ZSet(that.map.foldLeft(self.map.asInstanceOf[HashMap[A1, B1]]) { case (map, (a, b1)) =>
       map.get(a) match {
-        case Some(b) => map + (a -> ev.inverse(Sum(b), Sum(b1)))
+        case Some(b) =>
+          val occurrences = ev.inverse(Sum(b), Sum(b1))
+          if (occurrences === ev.identity)
+            map
+          else
+            map + (a -> occurrences)
         case None    => map + (a -> ev.inverse(ev.identity, Sum(b1)))
       }
     })
@@ -153,9 +158,13 @@ final class ZSet[+A, +B] private (private val map: HashMap[A @uncheckedVariance,
    */
   def intersect[A1 >: A, B1 >: B](
     that: ZSet[A1, B1]
-  )(implicit ev1: Commutative[Min[B1]], ev2: Identity[Sum[B1]]): ZSet[A1, B1] =
+  )(implicit ev1: Commutative[Min[B1]], ev2: Identity[Sum[B1]], eq: Equal[B1]): ZSet[A1, B1] =
     new ZSet((self.map.toVector ++ that.map.toVector).foldLeft(HashMap.empty[A1, B1]) { case (map, (a, b)) =>
-      map + (a -> ev1.combine(Min(map.getOrElse(a, ev2.identity)), Min(b)))
+      val occurrences = ev1.combine(Min(map.getOrElse(a, ev2.identity)), Min(b))
+      if (occurrences === ev2.identity)
+        map
+      else
+        map + (a -> occurrences)
     })
 
   /**
@@ -309,8 +318,8 @@ object ZSet extends LowPriorityZSetImplicits {
    * Derives an `Equal[ZSet[A, B]]` given an `Equal[B]`. Due to the
    * limitations of Scala's `Map`, this uses object equality on the keys.
    */
-  implicit def ZSetEqual[A, B](implicit ev1: Equal[B], ev: Identity[Sum[B]]): Equal[ZSet[A, B]] =
-    Equal[HashMap[A, B]].contramap(_.map.filterNot(_._2 === ev.identity))
+  implicit def ZSetEqual[A, B: Equal]: Equal[ZSet[A, B]] =
+    Equal[HashMap[A, B]].contramap(_.map)
 
   /**
    * The `EqualF` instance for `ZSet`.
@@ -378,8 +387,8 @@ object ZSet extends LowPriorityZSetImplicits {
    * Derives a `Hash[ZSet[A, B]]` given a `Hash[B]`. Due to the
    * limitations of Scala's `Map`, this uses object equality on the keys.
    */
-  implicit def ZSetHash[A, B: Hash](implicit ev: Identity[Sum[B]]): Hash[ZSet[A, B]] =
-    Hash[HashMap[A, B]].contramap(_.map.filterNot(_._2 === ev.identity))
+  implicit def ZSetHash[A, B: Hash]: Hash[ZSet[A, B]] =
+    Hash[HashMap[A, B]].contramap(_.map)
 
 }
 
@@ -389,9 +398,9 @@ trait LowPriorityZSetImplicits {
    * Derives a `PartialOrd[ZSet[A, B]]` given a `PartialOrd[B]`.
    * Due to the limitations of Scala's `Map`, this uses object equality on the keys.
    */
-  implicit def ZSetPartialOrd[A, B: PartialOrd](implicit ev: Identity[Sum[B]]): PartialOrd[ZSet[A, B]] =
+  implicit def ZSetPartialOrd[A, B: PartialOrd]: PartialOrd[ZSet[A, B]] =
     PartialOrd.makeFrom(
-      (l, r) => l.toMap.filterNot(_._2 === ev.identity).compareSoft(r.toMap.filterNot(_._2 === ev.identity)),
+      (l, r) => l.toMap.compareSoft(r.toMap),
       ZSet.ZSetEqual
     )
 
