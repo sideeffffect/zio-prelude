@@ -17,11 +17,14 @@
 package zio.prelude
 
 package object experimental
-    extends ApplicationComposeSyntax
+    extends AbsorptionSyntax
+    with ApplicationComposeSyntax
     with BothComposeSyntax
-    with ComplementShapeSyntax
+    with DistributiveJoinMeetSyntax
     with EitherComposeSyntax
-    with JoinMeetSyntax {
+    with ExcludedMiddleSyntax
+    with InvolutionSyntax
+    with NoncontradictionSyntax {
 
   object classic {
 
