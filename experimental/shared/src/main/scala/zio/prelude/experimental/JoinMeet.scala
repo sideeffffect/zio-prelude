@@ -3,7 +3,7 @@ package experimental
 
 import zio.prelude.newtypes.{AndF, OrF}
 
-object JoinMeetShape {
+object JoinMeet {
 
   implicit lazy val BoolJoinMeet: Absorption[Boolean] with DistributiveJoinMeet[Boolean] with ExcludedMiddle[
     Boolean
@@ -63,4 +63,38 @@ object JoinMeetShape {
           def combine(l: => AndF[Set[A]], r: => AndF[Set[A]]): AndF[Set[A]] = AndF((l: Set[A]) & (r: Set[A]))
         }
     }
+}
+
+trait JoinMeetSyntax {
+
+  /**
+   * Provides infix syntax for joining or meeting two values.
+   */
+  implicit class JoinMeetOps[A](private val l: A) {
+
+    /**
+     * A symbolic alias for `join`.
+     */
+    def vvv(r: => A)(implicit OrFA: Associative[OrF[A]], AndFA: Associative[AndF[A]]): A =
+      OrFA.combine(OrF(l), OrF(r))
+
+    /**
+     * Join two values.
+     */
+    def join(r: => A)(implicit OrFA: Associative[OrF[A]], AndFA: Associative[AndF[A]]): A =
+      OrFA.combine(OrF(l), OrF(r))
+
+    /**
+     * A symbolic alias for `meet`.
+     */
+    def ^^^(r: => A)(implicit OrFA: Associative[OrF[A]], AndFA: Associative[AndF[A]]): A =
+      AndFA.combine(AndF(l), AndF(r))
+
+    /**
+     * Meet two values.
+     */
+    def meet(r: => A)(implicit OrFA: Associative[OrF[A]], AndFA: Associative[AndF[A]]): A =
+      AndFA.combine(AndF(l), AndF(r))
+
+  }
 }

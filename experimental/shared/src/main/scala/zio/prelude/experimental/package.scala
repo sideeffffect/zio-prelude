@@ -24,6 +24,7 @@ package object experimental
     with EitherComposeSyntax
     with ExcludedMiddleSyntax
     with InvolutionSyntax
+    with JoinMeetSyntax
     with NoncontradictionSyntax {
 
   object classic {
