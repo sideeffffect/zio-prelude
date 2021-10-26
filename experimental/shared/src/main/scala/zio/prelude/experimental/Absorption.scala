@@ -2,8 +2,8 @@ package zio.prelude
 package experimental
 
 trait Absorption[A] {
-  def or(l: A, r: A): A
-  def and(l: A, r: A): A
+  def or(l: => A, r: => A): A
+  def and(l: => A, r: => A): A
 }
 
 object Absorption {
@@ -21,17 +21,17 @@ object Absorption {
       with ExcludedMiddle[Boolean]
       with Involution[Boolean]
       with Noncontradiction[Boolean] {
-      override def complement(a: Boolean): Boolean      = !a
-      override val bottom: Boolean                      = false
-      override val top: Boolean                         = true
-      override def or(l: Boolean, r: Boolean): Boolean  = l || r
-      override def and(l: Boolean, r: Boolean): Boolean = l && r
+      override def complement(a: => Boolean): Boolean         = !a
+      override val bottom: Boolean                            = false
+      override val top: Boolean                               = true
+      override def or(l: => Boolean, r: => Boolean): Boolean  = l || r
+      override def and(l: => Boolean, r: => Boolean): Boolean = l && r
     }
 
   implicit def SetInstance[A]: DistributiveAbsorption[Set[A]] =
     new DistributiveAbsorption[Set[A]] {
-      override def or(l: Set[A], r: Set[A]): Set[A]  = l | r
-      override def and(l: Set[A], r: Set[A]): Set[A] = l & r
+      override def or(l: => Set[A], r: => Set[A]): Set[A]  = l | r
+      override def and(l: => Set[A], r: => Set[A]): Set[A] = l & r
     }
 }
 
@@ -45,25 +45,25 @@ trait AbsorptionSyntax {
     /**
      * A symbolic alias for `or`.
      */
-    def vvv(r: A)(implicit absorption: Absorption[A]): A =
+    def vvv(r: => A)(implicit absorption: Absorption[A]): A =
       absorption.or(l, r)
 
     /**
      * Or two values.
      */
-    def or(r: A)(implicit absorption: Absorption[A]): A =
+    def or(r: => A)(implicit absorption: Absorption[A]): A =
       absorption.or(l, r)
 
     /**
      * A symbolic alias for `and`.
      */
-    def ^^^(r: A)(implicit absorption: Absorption[A]): A =
+    def ^^^(r: => A)(implicit absorption: Absorption[A]): A =
       absorption.and(l, r)
 
     /**
      * And two values.
      */
-    def and(r: A)(implicit absorption: Absorption[A]): A =
+    def and(r: => A)(implicit absorption: Absorption[A]): A =
       absorption.and(l, r)
   }
 

@@ -9,9 +9,9 @@ object AbsorptionEqual {
   implicit def derive[A](implicit absorption0: Absorption[A], equal0: Equal[A]): AbsorptionEqual[A] =
     new AbsorptionEqual[A] {
 
-      override def or(l: A, r: A): A = absorption0.or(l, r)
+      override def or(l: => A, r: => A): A = absorption0.or(l, r)
 
-      override def and(l: A, r: A): A = absorption0.and(l, r)
+      override def and(l: => A, r: => A): A = absorption0.and(l, r)
 
       protected def checkEqual(l: A, r: A): Boolean = equal0.equal(l, r)
     }
@@ -26,9 +26,9 @@ object DistributiveAbsorptionEqual {
   ): DistributiveAbsorptionEqual[A] =
     new DistributiveAbsorptionEqual[A] {
 
-      override def or(l: A, r: A): A = distributiveJoinMeet0.or(l, r)
+      override def or(l: => A, r: => A): A = distributiveJoinMeet0.or(l, r)
 
-      override def and(l: A, r: A): A = distributiveJoinMeet0.and(l, r)
+      override def and(l: => A, r: => A): A = distributiveJoinMeet0.and(l, r)
 
       protected def checkEqual(l: A, r: A): Boolean = equal0.equal(l, r)
     }
@@ -42,11 +42,11 @@ object ExcludedMiddleEqual {
 
       override def top: A = excludedMiddle0.top
 
-      override def complement(a: A): A = excludedMiddle0.complement(a)
+      override def complement(a: => A): A = excludedMiddle0.complement(a)
 
-      override def or(l: A, r: A): A = excludedMiddle0.or(l, r)
+      override def or(l: => A, r: => A): A = excludedMiddle0.or(l, r)
 
-      override def and(l: A, r: A): A = excludedMiddle0.and(l, r)
+      override def and(l: => A, r: => A): A = excludedMiddle0.and(l, r)
 
       protected def checkEqual(l: A, r: A): Boolean = equal0.equal(l, r)
     }
@@ -58,11 +58,11 @@ object InvolutionEqual {
   implicit def derive[A](implicit involution0: Involution[A], equal0: Equal[A]): InvolutionEqual[A] =
     new InvolutionEqual[A] {
 
-      override def complement(a: A): A = involution0.complement(a)
+      override def complement(a: => A): A = involution0.complement(a)
 
-      override def or(l: A, r: A): A = involution0.or(l, r)
+      override def or(l: => A, r: => A): A = involution0.or(l, r)
 
-      override def and(l: A, r: A): A = involution0.and(l, r)
+      override def and(l: => A, r: => A): A = involution0.and(l, r)
 
       protected def checkEqual(l: A, r: A): Boolean = equal0.equal(l, r)
     }
@@ -76,11 +76,11 @@ object NoncontradictionEqual {
 
       override def bottom: A = noncontradiction0.bottom
 
-      override def complement(a: A): A = noncontradiction0.complement(a)
+      override def complement(a: => A): A = noncontradiction0.complement(a)
 
-      override def or(l: A, r: A): A = noncontradiction0.or(l, r)
+      override def or(l: => A, r: => A): A = noncontradiction0.or(l, r)
 
-      override def and(l: A, r: A): A = noncontradiction0.and(l, r)
+      override def and(l: => A, r: => A): A = noncontradiction0.and(l, r)
 
       protected def checkEqual(l: A, r: A): Boolean = equal0.equal(l, r)
     }

@@ -2,7 +2,7 @@ package zio.prelude
 package experimental
 
 trait Complement[A] extends Absorption[A] {
-  def complement(a: A): A
+  def complement(a: => A): A
 }
 
 object Complement {
