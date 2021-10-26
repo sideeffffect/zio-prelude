@@ -567,7 +567,7 @@ object Associative extends AssociativeLowPriority {
   /**
    * The `Commutative`, `Idempotent` and `Inverse` instance for the union of `Set[A]` values.
    */
-  implicit def SetCommutativeIdempotentInverse[A]
+  implicit def SetOrFCommutativeIdempotentInverse[A]
     : Commutative[OrF[Set[A]]] with Idempotent[OrF[Set[A]]] with Inverse[OrF[Set[A]]] =
     new Commutative[OrF[Set[A]]] with Idempotent[OrF[Set[A]]] with Inverse[OrF[Set[A]]] {
       def combine(l: => OrF[Set[A]], r: => OrF[Set[A]]): OrF[Set[A]] = OrF((l: Set[A]) | (r: Set[A]))

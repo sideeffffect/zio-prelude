@@ -1,9 +1,13 @@
 package zio.prelude
 package experimental
 
+import zio.prelude.newtypes._
+
 trait Absorption[A] {
-  def or(l: => A, r: => A): A
-  def and(l: => A, r: => A): A
+  def or(l: => A, r: => A): A  = Or.combine(OrF(l), OrF(r))
+  def and(l: => A, r: => A): A = And.combine(AndF(l), AndF(r))
+  def Or: Associative[OrF[A]]
+  def And: Associative[AndF[A]]
 }
 
 object Absorption {
@@ -26,12 +30,16 @@ object Absorption {
       override val top: Boolean                               = true
       override def or(l: => Boolean, r: => Boolean): Boolean  = l || r
       override def and(l: => Boolean, r: => Boolean): Boolean = l && r
+      override def Or: Identity[OrF[Boolean]]                 = Associative.BooleanOrFCommutativeIdempotentInverse
+      override def And: Identity[AndF[Boolean]]               = Associative.BooleanAndFCommutativeIdempotentInverse
     }
 
   implicit def SetInstance[A]: DistributiveAbsorption[Set[A]] =
     new DistributiveAbsorption[Set[A]] {
       override def or(l: => Set[A], r: => Set[A]): Set[A]  = l | r
       override def and(l: => Set[A], r: => Set[A]): Set[A] = l & r
+      override def Or: Associative[OrF[Set[A]]]            = Associative.SetOrFCommutativeIdempotentInverse
+      override def And: Associative[AndF[Set[A]]]          = Associative.SetAndFCommutativeIdempotent
     }
 }
 

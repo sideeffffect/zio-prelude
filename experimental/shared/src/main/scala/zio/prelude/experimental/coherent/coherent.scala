@@ -2,6 +2,7 @@ package zio.prelude.experimental.coherent
 
 import zio.prelude._
 import zio.prelude.experimental._
+import zio.prelude.newtypes.{AndF, OrF}
 
 trait AbsorptionEqual[A] extends Absorption[A] with Equal[A]
 
@@ -12,6 +13,10 @@ object AbsorptionEqual {
       override def or(l: => A, r: => A): A = absorption0.or(l, r)
 
       override def and(l: => A, r: => A): A = absorption0.and(l, r)
+
+      override def Or: Associative[OrF[A]] = absorption0.Or
+
+      override def And: Associative[AndF[A]] = absorption0.And
 
       protected def checkEqual(l: A, r: A): Boolean = equal0.equal(l, r)
     }
@@ -29,6 +34,10 @@ object DistributiveAbsorptionEqual {
       override def or(l: => A, r: => A): A = distributiveJoinMeet0.or(l, r)
 
       override def and(l: => A, r: => A): A = distributiveJoinMeet0.and(l, r)
+
+      override def Or: Associative[OrF[A]] = distributiveJoinMeet0.Or
+
+      override def And: Associative[AndF[A]] = distributiveJoinMeet0.And
 
       protected def checkEqual(l: A, r: A): Boolean = equal0.equal(l, r)
     }
@@ -48,6 +57,10 @@ object ExcludedMiddleEqual {
 
       override def and(l: => A, r: => A): A = excludedMiddle0.and(l, r)
 
+      override def Or: Associative[OrF[A]] = excludedMiddle0.Or
+
+      override def And: Identity[AndF[A]] = excludedMiddle0.And
+
       protected def checkEqual(l: A, r: A): Boolean = equal0.equal(l, r)
     }
 }
@@ -63,6 +76,10 @@ object InvolutionEqual {
       override def or(l: => A, r: => A): A = involution0.or(l, r)
 
       override def and(l: => A, r: => A): A = involution0.and(l, r)
+
+      override def Or: Associative[OrF[A]] = involution0.Or
+
+      override def And: Associative[AndF[A]] = involution0.And
 
       protected def checkEqual(l: A, r: A): Boolean = equal0.equal(l, r)
     }
@@ -81,6 +98,10 @@ object NoncontradictionEqual {
       override def or(l: => A, r: => A): A = noncontradiction0.or(l, r)
 
       override def and(l: => A, r: => A): A = noncontradiction0.and(l, r)
+
+      override def Or: Identity[OrF[A]] = noncontradiction0.Or
+
+      override def And: Associative[AndF[A]] = noncontradiction0.And
 
       protected def checkEqual(l: A, r: A): Boolean = equal0.equal(l, r)
     }
