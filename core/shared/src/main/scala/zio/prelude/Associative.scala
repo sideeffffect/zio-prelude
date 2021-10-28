@@ -18,7 +18,7 @@ package zio.prelude
 
 import zio.duration.{Duration => ZIODuration}
 import zio.prelude.newtypes.{And, First, Last, Max, Min, Natural, Or, Prod, Sum}
-import zio.{Cause, Chunk, NonEmptyChunk}
+import zio.{Chunk, NonEmptyChunk}
 
 import scala.annotation.tailrec
 
@@ -1361,14 +1361,14 @@ object Associative extends AssociativeLowPriority {
   implicit def VectorIdentity[A]: Identity[Vector[A]] =
     Identity.make(Vector.empty, _ ++ _)
 
-  implicit def zioCauseProdIdentity[A]: Identity[Prod[Cause[A]]] = new Identity[Prod[zio.Cause[A]]] {
+  implicit def zioCauseProdIdentity[A]: Identity[Prod[zio.Cause[A]]] = new Identity[Prod[zio.Cause[A]]] {
     def identity: Prod[zio.Cause[A]]                                                    =
       Prod(zio.Cause.empty)
     def combine(l: => Prod[zio.Cause[A]], r: => Prod[zio.Cause[A]]): Prod[zio.Cause[A]] =
       Prod(Prod.unwrap(l) ++ Prod.unwrap(r))
   }
 
-  implicit def zioCauseSumCommutativeIdentity[A]: Commutative[Sum[Cause[A]]] with Identity[Sum[Cause[A]]] =
+  implicit def zioCauseSumCommutativeIdentity[A]: Commutative[Sum[zio.Cause[A]]] with Identity[Sum[zio.Cause[A]]] =
     new Commutative[Sum[zio.Cause[A]]] with Identity[Sum[zio.Cause[A]]] {
       def identity: Sum[zio.Cause[A]]                                                  =
         Sum(zio.Cause.empty)
