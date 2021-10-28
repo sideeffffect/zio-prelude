@@ -4,7 +4,7 @@ title: "Abstraction Diagrams"
 ---
 # Absorption
 
-[![Absorption hierarchy](https://user-images.githubusercontent.com/9019485/138971207-a8cf937a-b2ec-4685-b126-8741e669df21.png)][Absorption-link]
+[![Absorption hierarchy](https://user-images.githubusercontent.com/9019485/139312934-c76ebe2a-98d9-40ab-a5eb-f59af3c1396a.png)][Absorption-link]
 
 <details><summary>Mermaid</summary>
 
@@ -15,8 +15,8 @@ classDiagram
   Absorption~A~ <|-- Noncontradiction~A~
   Absorption~A~ <|-- ExcludedMiddle~A~
   class Absorption~A~{
-    () or(A, A): A
-    () and(A, A): A
+    () or(=> A, => A): A
+    () and(=> A, => A): A
   }
   class DistributiveAbsorption~A~{
     Boolean
@@ -24,23 +24,23 @@ classDiagram
   }
   class Involution~A~{
     Boolean
-    () complement(A): A
+    () complement(=> A): A
   }
   class Noncontradiction~A~{
     Boolean
-    () complement(A): A
+    () complement(=> A): A
     () bottom: A
   }
   class ExcludedMiddle~A~{
     Boolean
-    () complement(A): A
+    () complement(=> A): A
     () top: A
   }
 ```
 
 </details>
 
-[Absorption-link]: https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiY2xhc3NEaWFncmFtXG4gIEFic29ycHRpb25-QX4gPHwtLSBEaXN0cmlidXRpdmVBYnNvcnB0aW9ufkF-XG4gIEFic29ycHRpb25-QX4gPHwtLSBJbnZvbHV0aW9ufkF-XG4gIEFic29ycHRpb25-QX4gPHwtLSBOb25jb250cmFkaWN0aW9ufkF-XG4gIEFic29ycHRpb25-QX4gPHwtLSBFeGNsdWRlZE1pZGRsZX5BflxuICBjbGFzcyBBYnNvcnB0aW9ufkF-e1xuICAgICgpIG9yKEEsIEEpOiBBXG4gICAgKCkgYW5kKEEsIEEpOiBBXG4gIH1cbiAgY2xhc3MgRGlzdHJpYnV0aXZlQWJzb3JwdGlvbn5BfntcbiAgICBCb29sZWFuXG4gICAgU2V0W0FdXG4gIH1cbiAgY2xhc3MgSW52b2x1dGlvbn5BfntcbiAgICBCb29sZWFuXG4gICAgKCkgY29tcGxlbWVudChBKTogQVxuICB9XG4gIGNsYXNzIE5vbmNvbnRyYWRpY3Rpb25-QX57XG4gICAgQm9vbGVhblxuICAgICgpIGNvbXBsZW1lbnQoQSk6IEFcbiAgICAoKSBib3R0b206IEFcbiAgfVxuICBjbGFzcyBFeGNsdWRlZE1pZGRsZX5BfntcbiAgICBCb29sZWFuXG4gICAgKCkgY29tcGxlbWVudChBKTogQVxuICAgICgpIHRvcDogQVxuICB9IiwibWVybWFpZCI6IntcbiAgXCJ0aGVtZVwiOiBcImRlZmF1bHRcIlxufSIsInVwZGF0ZUVkaXRvciI6dHJ1ZSwiYXV0b1N5bmMiOnRydWUsInVwZGF0ZURpYWdyYW0iOmZhbHNlfQ
+[Absorption-link]: https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiY2xhc3NEaWFncmFtXG4gIEFic29ycHRpb25-QX4gPHwtLSBEaXN0cmlidXRpdmVBYnNvcnB0aW9ufkF-XG4gIEFic29ycHRpb25-QX4gPHwtLSBJbnZvbHV0aW9ufkF-XG4gIEFic29ycHRpb25-QX4gPHwtLSBOb25jb250cmFkaWN0aW9ufkF-XG4gIEFic29ycHRpb25-QX4gPHwtLSBFeGNsdWRlZE1pZGRsZX5BflxuICBjbGFzcyBBYnNvcnB0aW9ufkF-e1xuICAgICgpIG9yKD0-IEEsID0-IEEpOiBBXG4gICAgKCkgYW5kKD0-IEEsID0-IEEpOiBBXG4gIH1cbiAgY2xhc3MgRGlzdHJpYnV0aXZlQWJzb3JwdGlvbn5BfntcbiAgICBCb29sZWFuXG4gICAgU2V0W0FdXG4gIH1cbiAgY2xhc3MgSW52b2x1dGlvbn5BfntcbiAgICBCb29sZWFuXG4gICAgKCkgY29tcGxlbWVudCg9PiBBKTogQVxuICB9XG4gIGNsYXNzIE5vbmNvbnRyYWRpY3Rpb25-QX57XG4gICAgQm9vbGVhblxuICAgICgpIGNvbXBsZW1lbnQoPT4gQSk6IEFcbiAgICAoKSBib3R0b206IEFcbiAgfVxuICBjbGFzcyBFeGNsdWRlZE1pZGRsZX5BfntcbiAgICBCb29sZWFuXG4gICAgKCkgY29tcGxlbWVudCg9PiBBKTogQVxuICAgICgpIHRvcDogQVxuICB9IiwibWVybWFpZCI6IntcbiAgXCJ0aGVtZVwiOiBcImRlZmF1bHRcIlxufSIsInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0
 
 # Associative
 
